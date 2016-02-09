@@ -1,0 +1,49 @@
+<html>
+<head>
+  <title>A Plants Map Leaflet demo</title>
+  <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css"/>
+  <link rel="stylesheet" href="MarkerCluster.css" />
+  <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+  <script src="leaflet.markercluster.js"></script>
+  <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+  <style>
+    #map{ height: 100% }
+  </style>
+</head>
+<body>
+ 
+  <div id="map"></div>
+ 
+  <script>
+ 
+  // initialize the map
+  var map = L.map('map').setView([39, -100], 5);
+ 
+  // load a tile layer
+  L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
+    {
+      attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ, TomTom, Intermap, iPC, USGS, FAO, NPS, NRCAN, GeoBase, Kadaster NL, Ordnance Survey, Esri Japan, METI, Esri China (Hong Kong), and the GIS User Community',
+      maxZoom: 19,
+      minZoom: 1
+    }).addTo(map);
+ 
+  $.getJSON("https://rawgit.com/jencarta/geojson_data/master/points.geojson",function(data){
+    var plantIcon = L.icon({
+      iconUrl: 'favicon.ico',
+      iconSize: [32,32]
+    });
+    var plants = L.geoJson(data,{
+      pointToLayer: function(feature,latlng){
+        var marker = L.marker(latlng,{icon: plantIcon});
+        marker.bindPopup(feature.properties.title + '<br/>' + feature.properties.story);
+        return marker;
+      }
+    });
+    var clusters = L.markerClusterGroup();
+    clusters.addLayer(plants);
+    map.addLayer(clusters);
+  });
+ 
+  </script>
+</body>
+</html>
